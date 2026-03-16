@@ -1,5 +1,7 @@
 import random
 import streamlit as st
+from logic_utils import  check_guess
+
 
 def get_range_for_difficulty(difficulty: str):
     if difficulty == "Easy":
@@ -34,17 +36,18 @@ def check_guess(guess, secret):
         return "Win", "🎉 Correct!"
 
     try:
+        #FIX: Corrected the logic for high/low feedback using
         if guess > secret:
-            return "Too High", "📈 Go HIGHER!"
+            return "Too High", "📉 Go LOWER!"
         else:
-            return "Too Low", "📉 Go LOWER!"
+            return "Too Low", "📈 Go HIGHER!"
     except TypeError:
         g = str(guess)
         if g == secret:
             return "Win", "🎉 Correct!"
         if g > secret:
-            return "Too High", "📈 Go HIGHER!"
-        return "Too Low", "📉 Go LOWER!"
+            return "Too High", "📉 Go LOWER!"
+        return "Too Low", "📈 Go HIGHER!"
 
 
 def update_score(current_score: int, outcome: str, attempt_number: int):
@@ -135,6 +138,10 @@ if new_game:
     st.session_state.attempts = 0
     st.session_state.secret = random.randint(1, 100)
     st.success("New game started.")
+    #FIXME: status does not reset to "playing" on new game
+    #Fix: Added line to reset status to "playing" when starting a new game
+    #Claude helped identify that the status was not resetting, which was causing the game to not allow new guesses after winning or losing. By resetting the status to "playing", we ensure that the game can be played again after starting a new game.
+    st.session_state.status = "playing"
     st.rerun()
 
 if st.session_state.status != "playing":
